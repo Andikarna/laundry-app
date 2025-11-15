@@ -14,6 +14,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+    <link rel="icon" href="{{ asset('images/logo2.png') }}" type="image/png" sizes="16x16">
+
     <style>
         :root {
             --primary-blue: #5dade2;
