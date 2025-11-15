@@ -202,7 +202,7 @@
     <!-- Form Register -->
     <div class="container" id="registerContainer">
         <div class="image-section">
-            <img src="{{ asset('images/background2.png') }}" alt="Laundry Illustration" />
+            <img src="{{ asset('images/background3.png') }}" alt="Laundry Illustration" />
         </div>
 
         <div class="form-section">

@@ -131,7 +131,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
+            <img src="{{ asset('images/logo2.png') }}" alt="Logo">
             <h5>Laundry Fresh</h5>
         </div>
         <ul class="nav flex-column">

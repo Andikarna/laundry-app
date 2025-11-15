@@ -181,14 +181,14 @@
     <div class="container">
         <!-- Sisi Kiri -->
         <div class="image-section">
-            <img src="{{ asset('images/background2.png') }}" alt="Ilustrasi Laundry">
+            <img src="{{ asset('images/background3.png') }}" alt="Ilustrasi Laundry">
         </div>
 
         <!-- Sisi Kanan -->
         <div class="form-section">
             <div class="login-card">
                 <div class="logo">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Laundry">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Logo Laundry">
                 </div>
 
                 <h1>Selamat Datang di Batavia Laundry</h1>
