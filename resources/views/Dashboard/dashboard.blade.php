@@ -25,7 +25,6 @@
         .bg-danger {
             background-color: #ef4444 !important;
         }
-        
     </style>
 
 
@@ -72,6 +71,7 @@
                                     <th>Layanan</th>
                                     <th>Status</th>
                                     <th>Tanggal</th>
+                                    <th>Estimasi Selesai</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,6 +97,16 @@
                                             </span>
                                         </td>
                                         <td>{{ $order->created_at->format('d/m/Y') }}</td>
+                                        <td>
+                                            @if ($order->estimate_finish)
+                                                {{ $order->estimate_finish->translatedFormat('d/m/Y H:i') }}
+                                                <br>
+                                                <small
+                                                    class="text-muted">({{ $order->estimate_finish->diffForHumans() }})</small>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>

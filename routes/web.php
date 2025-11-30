@@ -16,7 +16,7 @@ Route::get('/', function () {
 
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(CekLogout::class);;
-Route::post('/login', [LoginController::class, 'login']);  
+Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register')->middleware(CekLogout::class);;
@@ -38,6 +38,18 @@ Route::put('/operator/{id}/finish', [OperatorController::class, 'finish'])->name
 
 Route::post('/admin/payment/{id}', [AdminController::class, 'payments'])->name('admin.payments');
 Route::post('/admin/order/update-status/{id}', [AdminController::class, 'updateStatus'])->name('admin.order.updateStatus');
+Route::delete('/admin/order/payment/delete/{id}', [AdminController::class, 'deletePayment'])
+    ->name('admin.order.deletePayment');
+
+Route::post('/admin/order/{id}/upload-payment-proof', [AdminController::class, 'uploadPaymentProof'])
+    ->name('admin.order.uploadPaymentProof');
+
+Route::get('/payment-proof/{filename}', function ($filename) {
+    $path = 'C:/document_laundry/' . $filename;
+    if (!file_exists($path)) abort(404);
+    return response()->file($path);
+})->name('payment.proof');
+
 
 
 Route::get('/customer', function () {
@@ -60,7 +72,9 @@ Route::get('/customer-support', function () {
     return view('others.bantuanpelanggan');
 })->name('customer-support')->middleware(CekLogin::class);;
 
-Route::get('/task-history', function () {
-    return view('others.task-history');
-})->name('task-history')->middleware(CekLogin::class);;
+// Route::get('/task-history', function () {
+//     return view('others.task-history');
+// })->name('task-history')->middleware(CekLogin::class);;
 
+
+Route::get('/task-history', [OperatorController::class, 'historyTask'])->name('task-history')->middleware(CekLogin::class);;

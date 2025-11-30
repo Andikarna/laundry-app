@@ -180,6 +180,7 @@
                                         <th>Status</th>
                                         <th>Update</th>
                                         <th>Total</th>
+                                        <th>Estimasi Selesai</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -192,6 +193,16 @@
                                             <td><span class="badge-status badge-warning">Proses</span></td>
                                             <td>{{ $order->updated_at->format('d/m/Y') }}</td>
                                             <td>Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                                            <td>
+                                                @if ($order->estimate_finish)
+                                                    {{ $order->estimate_finish->translatedFormat('d/m/Y H:i') }}
+                                                    <br>
+                                                    <small class="text-muted">(selesai
+                                                        {{ $order->estimate_finish->diffForHumans(null, true, false) }})</small>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -243,6 +254,7 @@
                                                 @endif
                                             </td>
 
+
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -269,6 +281,7 @@
                                         <th>Total</th>
                                         <th>Metode Pembayaran</th>
                                         <th>Status Pembayaran</th>
+                                        <th>Dokument Barang</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -294,14 +307,37 @@
                                                 @endif
                                             </td>
 
-                                            <td><span
-                                                    class="badge-status {{ $order->status == 'Lunas' ? 'badge-success' : 'badge-warning' }}">{{ $order->status ?? 'Belum Bayar' }}</span>
+                                            <td>
+                                                <span
+                                                    class="badge-status {{ $order->status == 'Lunas' ? 'badge-success' : 'badge-warning' }}">
+                                                    {{ $order->status ?? 'Belum Bayar' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                @if ($order->document_path)
+                                                    <a href="{{ route('payment.proof', $order->document_path) }}"
+                                                        target="_blank">
+                                                        Lihat Bukti
+                                                    </a>
+                                                @else
+                                                    <form
+                                                        action="{{ route('admin.order.uploadPaymentProof', $order->id) }}"
+                                                        method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input type="file" name="payment_proof" accept="image/*" required
+                                                            class="form-control form-control-sm mb-1">
+                                                        <button type="submit" class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-upload"></i> Upload
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </td>
 
                                             <td>
                                                 @if ($order->status == 'Pembayaran')
                                                     <form action="{{ route('admin.order.updateStatus', $order->id) }}"
-                                                        method="POST">
+                                                        method="POST" class="d-inline">
                                                         @csrf
                                                         <input type="hidden" name="action" value="lunas">
                                                         <button class="action-btn">
@@ -310,20 +346,29 @@
                                                     </form>
                                                 @elseif($order->status == 'Pengambilan' || $order->status == 'Lunas')
                                                     <form action="{{ route('admin.order.updateStatus', $order->id) }}"
-                                                        method="POST">
+                                                        method="POST" class="d-inline">
                                                         @csrf
                                                         <input type="hidden" name="action" value="diambil">
                                                         <button class="action-btn">
                                                             <i class="bi bi-box-arrow-up"></i> Tandai Diambil
                                                         </button>
                                                     </form>
-
-                                                    {{-- Jika selesai semua --}}
                                                 @else
                                                     <span class="text-success fw-semibold">
                                                         <i class="bi bi-check-circle"></i> Selesai
                                                     </span>
                                                 @endif
+
+                                                {{-- Tombol Hapus Pembayaran --}}
+                                                <form action="{{ route('admin.order.deletePayment', $order->id) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus pembayaran ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-danger ms-2">
+                                                        <i class="bi bi-trash"></i> Hapus
+                                                    </button>
+                                                </form>
                                             </td>
 
                                         </tr>
@@ -336,6 +381,9 @@
                     @endif
                 </div>
             </div>
+
+
+
         </div>
 
         <div class="modal fade" id="qrisModal" tabindex="-1">

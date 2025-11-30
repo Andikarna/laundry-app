@@ -308,7 +308,22 @@
             max-width: 400px;
             animation: slideUp 0.4s ease;
         }
+
+        #estimateTime {
+            background: #1f2937;
+            /* abu gelap */
+            padding: 10px 14px;
+            border-left: 4px solid #10b981;
+            /* hijau emerald */
+            margin-top: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #e5e7eb;
+            /* abu terang */
+            display: none;
+        }
     </style>
+
 
     @if (session('success'))
         <div id="notif-success" class="notif success">
@@ -330,6 +345,12 @@
         </div>
 
         @if ($activeOrders)
+            @php
+                $estimasi = \Carbon\Carbon::parse($activeOrders->created_at)
+                    ->addMinutes($activeOrders->service->order_time)
+                    ->translatedFormat('d M Y H:i');
+            @endphp
+
             <div class="active-order">
                 <h3>Pesanan Aktif</h3>
 
@@ -337,6 +358,10 @@
                 <p>Tanggal: {{ \Carbon\Carbon::parse($activeOrders->created_at)->translatedFormat('d M Y') }}</p>
                 <p>Layanan: {{ $activeOrders->service->name }} ({{ $activeOrders->weight }} Kg)</p>
                 <p>Operator: {{ $activeOrders->service->user->name ?? '-' }}</p>
+
+                {{-- Estimasi --}}
+                <p><b>Estimasi Selesai:</b> {{ $estimasi }}</p>
+
                 <p class="price">Total: Rp {{ number_format($activeOrders->total_price, 0, ',', '.') }}</p>
             </div>
         @else
@@ -345,6 +370,7 @@
                 <p>Tidak ada pesanan aktif saat ini.</p>
             </div>
         @endif
+
 
 
         @if ($orders->count() > 0)
@@ -381,6 +407,16 @@
                                 <p
                                     style="margin:2px 0; font-weight:500; color: {{ $order->status == 'Selesai' ? '#16a34a' : ($order->status == 'Proses' ? '#f59e0b' : '#ef4444') }};">
                                     Status: {{ $order->status }}
+                                </p>
+
+                                <p>
+                                    @if ($order->document_path)
+                                        <a href="{{ route('payment.proof', $order->document_path) }}" target="_blank">
+                                            Lihat Bukti
+                                        </a>
+                                    @else
+                                        Tidak ada bukti barang
+                                    @endif
                                 </p>
                             </div>
 
@@ -441,12 +477,19 @@
                 <select id="type" name="service_id" required>
                     <option value="">-- Pilih Layanan --</option>
                     @foreach ($services as $data)
-                        <option value="{{ $data->id }}" data-price="{{ $data->price }}"
+                        {{-- <option value="{{ $data->id }}" data-price="{{ $data->price }}"
                             data-operator="{{ $data->user->name ?? '-' }}">
+                            {{ $data->name }} - Rp {{ number_format($data->price, 0, ',', '.') }} / Kg
+                        </option> --}}
+
+                        <option value="{{ $data->id }}" data-price="{{ $data->price }}"
+                            data-operator="{{ $data->user->name ?? '-' }}" data-order-time="{{ $data->order_time }}">
                             {{ $data->name }} - Rp {{ number_format($data->price, 0, ',', '.') }} / Kg
                         </option>
                     @endforeach
                 </select>
+
+                <p id="estimateTime" class="text-info fw-semibold" style="margin-top:10px;"></p>
 
                 <div id="weightContainer">
                     <label for="weight">Berat (Kg)</label>
@@ -614,5 +657,54 @@
             closeDetailBtn.onclick = () => detailModal.classList.remove('active');
         });
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const serviceSelect = document.getElementById("type");
+            const estimateTime = document.getElementById("estimateTime");
+
+            serviceSelect.addEventListener("change", function() {
+                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                const orderMinutes = parseInt(selectedOption.getAttribute("data-order-time"));
+
+                if (!orderMinutes || isNaN(orderMinutes)) {
+                    estimateTime.style.display = "none";
+                    estimateTime.innerHTML = "";
+                    return;
+                }
+
+                // Ambil waktu sekarang
+                const now = new Date();
+
+                // Tambahkan menit order_time
+                const finishTime = new Date(now.getTime() + orderMinutes * 60000);
+
+                // Format waktu Indonesia
+                const options = {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "Asia/Jakarta"
+                };
+
+                const formattedFinish = finishTime.toLocaleString("id-ID", options)
+                    .replace(".", ":"); // Perbaikan format menit
+
+                estimateTime.innerHTML = `
+            <strong>Estimasi selesai:</strong><br>
+            ${formattedFinish} WIB
+        `;
+
+                estimateTime.style.display = "block";
+            });
+
+        });
+    </script>
+
+
 
 @endsection

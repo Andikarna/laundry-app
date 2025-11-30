@@ -16,6 +16,30 @@ class AdminController extends Controller
         $newOrders = Orders::where('status', 'menunggu')->get();
         $inProgressOrders = Orders::where('status', 'diproses')->get();
         $completedOrders = Orders::whereIn('status', ['selesai', 'pembayaran'])->orderByDesc('updated_at')->get();
+
+        // In Progress Orders
+        $inProgressOrders = $inProgressOrders->map(function ($order) {
+            if ($order->service && $order->service->order_time) {
+                $order->estimate_finish = \Carbon\Carbon::parse($order->created_at)
+                    ->addMinutes($order->service->order_time);
+            } else {
+                $order->estimate_finish = null;
+            }
+            return $order;
+        });
+
+        // Completed Orders
+        $completedOrders = $completedOrders->map(function ($order) {
+            if ($order->service && $order->service->order_time) {
+                $order->estimate_finish = \Carbon\Carbon::parse($order->created_at)
+                    ->addMinutes($order->service->order_time);
+            } else {
+                $order->estimate_finish = null;
+            }
+            return $order;
+        });
+
+
         $paymentOrders = Payments::all();
         return view('admin.admin', compact('newOrders', 'completedOrders', 'paymentOrders', 'operators', 'inProgressOrders'));
     }
@@ -92,5 +116,44 @@ class AdminController extends Controller
         }
 
         return back()->with('error', 'Aksi tidak valid.');
+    }
+
+    public function deletePayment($id)
+    {
+        $payment = Payments::findOrFail($id);
+
+        // Menghapus data pembayaran
+        $payment->delete();
+
+        return redirect()->back()->with('success', 'Pembayaran berhasil dihapus.');
+    }
+
+    public function uploadPaymentProof(Request $request, $id)
+    {
+        $request->validate([
+            'payment_proof' => 'required|image|max:2048', // max 2MB
+        ]);
+
+        $payment = Payments::findOrFail($id);
+
+        if ($request->hasFile('payment_proof')) {
+            $file = $request->file('payment_proof');
+            $filename = 'payment_' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Simpan di disk local_c (C:/payment_proofs)
+            $path = $file->storeAs('', $filename, 'local_c');
+
+            // Simpan path di database
+            $payment->document_path = $path;
+            $payment->save();
+
+            // Update juga di order
+            if ($payment->order) {
+                $payment->order->document_path = $path;
+                $payment->order->save();
+            }
+        }
+
+        return back()->with('success', 'Bukti pembayaran berhasil diupload.');
     }
 }

@@ -21,7 +21,7 @@ class OrderController extends Controller
 
         $activeOrders = Orders::with('service.user')
             ->where('user_id', $user->id)
-            ->where('status', 'Aktif')
+            ->where('status', 'Dikerjakan')
             ->first();
 
         return view('order.order', compact('services', 'orders', 'activeOrders'));

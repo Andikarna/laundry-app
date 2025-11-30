@@ -15,6 +15,7 @@ class Orders extends Model
         'user_id',
         'service_id',
         'operator_id',
+        'document_path',
         'invoice_code',
         'weight',
         'total_price',

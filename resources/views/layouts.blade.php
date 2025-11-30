@@ -134,7 +134,7 @@
     <div class="sidebar">
         <div class="logo">
             <img src="{{ asset('images/logo2.png') }}" alt="Logo">
-            <h5>Laundry Fresh</h5>
+            <h5>Batavia Laundry Fresh</h5>
         </div>
         <ul class="nav flex-column">
             @php
@@ -192,6 +192,8 @@
                         <i class="bi bi-clock-history"></i> Riwayat Tugas
                     </a>
                 </li>
+
+                
             @endif
 
             @if ($role == 3)

@@ -46,4 +46,12 @@ class OperatorController extends Controller
 
         return redirect()->back()->with('success', 'Tugas telah diselesaikan.');
     }
+
+    public function historyTask(){
+
+        $user = Auth::user();
+        $tasks = Orders::where('operator_id', $user->id)->get();
+
+        return view('others.task-history',compact('tasks'));
+    }
 }

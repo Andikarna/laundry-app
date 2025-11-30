@@ -16,11 +16,26 @@ class DashboardController extends Controller
         $newCustomers = User::whereDate('created_at', '>=', now()->subMonth())->where('role_id', 3)->count();
 
         // Ambil 5 pesanan terbaru
-        $recentOrders = Orders::with(['user', 'service'])
-            ->orderByDesc('updated_at')
+        // $recentOrders = Orders::with(['user', 'service'])
+        //     ->orderByDesc('updated_at')
+        //     ->latest()
+        //     ->take(5)
+        //     ->get();
+
+        $recentOrders = Orders::with('user', 'service')
             ->latest()
-            ->take(5)
-            ->get();
+            ->take(10)
+            ->get()
+            ->map(function ($order) {
+                if ($order->service && $order->service->order_time) {
+                    $order->estimate_finish = \Carbon\Carbon::parse($order->created_at)
+                        ->addMinutes($order->service->order_time);
+                } else {
+                    $order->estimate_finish = null;
+                }
+                return $order;
+            });
+
 
         return view('dashboard.dashboard', compact(
             'totalOrders',

@@ -30,21 +30,39 @@ return [
 
     'disks' => [
 
+        // 'local' => [
+        //     'driver' => 'local',
+        //     'root' => storage_path('app/private'),
+        //     'serve' => true,
+        //     'throw' => false,
+        //     'report' => false,
+        // ],
+
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
-            'serve' => true,
-            'throw' => false,
-            'report' => false,
+            'root' => storage_path('app'),
         ],
 
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
+        ],
+
+        // 'public' => [
+        //     'driver' => 'local',
+        //     'root' => storage_path('app/public'),
+        //     'url' => env('APP_URL') . '/storage',
+        //     'visibility' => 'public',
+        //     'throw' => false,
+        //     'report' => false,
+        // ],
+
+        'local_c' => [
+            'driver' => 'local',
+            'root' => 'C:/document_laundry', // pastikan folder ini ada dan bisa ditulis
+            'visibility' => 'public',
         ],
 
         's3' => [
